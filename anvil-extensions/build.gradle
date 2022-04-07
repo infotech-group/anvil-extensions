@@ -1,0 +1,11 @@
+plugins {
+  id 'kotlin'
+  id 'com.vanniktech.maven.publish'
+}
+
+dependencies {
+  implementation project(':anvil-extensions-annotations')
+
+  implementation "com.squareup.anvil:compiler-api:$anvil"
+  implementation "com.squareup.anvil:compiler-utils:$anvil"
+}

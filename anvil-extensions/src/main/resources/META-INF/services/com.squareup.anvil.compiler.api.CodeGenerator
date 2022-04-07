@@ -1,0 +1,2 @@
+com.infotechcorp.gradle.anvilextensions.generator.BindingsModuleCodeGenerator
+com.infotechcorp.gradle.anvilextensions.generator.ContributesProvidersCodeGenerator
