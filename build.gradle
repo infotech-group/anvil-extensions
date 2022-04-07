@@ -13,4 +13,9 @@ subprojects {
   repositories {
     mavenCentral()
   }
+  afterEvaluate {
+    mavenPublish {
+      sonatypeHost = 'S01'
+    }
+  }
 }
