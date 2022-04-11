@@ -2,3 +2,9 @@ plugins {
   id 'kotlin'
   id 'com.vanniktech.maven.publish'
 }
+
+java {
+  toolchain {
+    languageVersion.set(JavaLanguageVersion.of(8))
+  }
+}

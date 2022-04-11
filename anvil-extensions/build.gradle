@@ -9,3 +9,9 @@ dependencies {
   implementation "com.squareup.anvil:compiler-api:$anvil"
   implementation "com.squareup.anvil:compiler-utils:$anvil"
 }
+
+java {
+  toolchain {
+    languageVersion.set(JavaLanguageVersion.of(8))
+  }
+}
