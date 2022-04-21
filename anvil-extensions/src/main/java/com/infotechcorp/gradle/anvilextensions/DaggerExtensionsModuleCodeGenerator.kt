@@ -43,6 +43,7 @@ abstract class DaggerExtensionsModuleCodeGenerator<T> : CodeGenerator {
     val annotatedClasses = projectFiles
       .classAndInnerClassReferences(module)
       .filter { clazz -> classAnnotations.any(clazz::isAnnotatedWith) }
+/* FIXME https://github.com/square/anvil/issues/599
 
     var pckg = ""
 
@@ -55,7 +56,23 @@ abstract class DaggerExtensionsModuleCodeGenerator<T> : CodeGenerator {
       }
       .flatMap(::annotatedClassToContributions)
       .groupBy(AnvilScopedDaggerContribution<T>::scope)
+*/
+    return annotatedClasses.associateWith(::annotatedClassToContributions).mapNotNull { (clazz, contributions) ->
+      val scope = contributions.firstOrNull()?.scope ?: return@mapNotNull null
+      val moduleName = clazz.shortName + javaClass.simpleName.filter(Char::isUpperCase).dropLast(2) + "Module"
+      val pckg = clazz.packageFqName.asString()
 
+      createGeneratedFile(codeGenDir, pckg, moduleName,
+        generateScopedDaggerModuleFromContributions(
+          scope,
+          contributions.map(AnvilScopedDaggerContribution<T>::contribution).toList(),
+          pckg,
+          moduleName,
+        )
+      )
+    }
+
+/*
     return contributionsPerModule.map { (scope, contributions) ->
       val moduleName = DaggerModuleNameGenerator.get(module, javaClass, scope.fqName)
 
@@ -68,6 +85,7 @@ abstract class DaggerExtensionsModuleCodeGenerator<T> : CodeGenerator {
         )
       )
     }
+*/
   }
 
   protected open fun generateScopedDaggerModuleFromContributions(
