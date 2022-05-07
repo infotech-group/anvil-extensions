@@ -11,6 +11,7 @@ import kotlin.reflect.KClass
  * @Provides
  * @MapKey
  * @IntoSet
+ * @ElementsIntoSet
  *
  * Also if a class implements javax.inject.Provider, binding is generated for get() function
  */

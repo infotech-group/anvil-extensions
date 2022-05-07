@@ -19,6 +19,7 @@ class ContributesProvidersCodeGenerator : DaggerExtensionsModuleCodeGenerator<Co
     val providerFunction: KtFunction,
     val scope: AnnotationReference.Psi?,
     val multibinding: Boolean,
+    val elementsIntoSet: Boolean,
     val mapKey: AnnotationReference.Psi?,
     val qualifier: AnnotationReference.Psi?,
   )
@@ -34,7 +35,7 @@ class ContributesProvidersCodeGenerator : DaggerExtensionsModuleCodeGenerator<Co
       f.visibility() == PUBLIC && f.parameters.isEmpty() &&
         (implementsProvider && f.name == "get") || f.annotations.any { a ->
           a.isDaggerScope() || a.isMapKey() || a.isQualifier() ||
-          a.fqName == providesFqName || a.fqName == intoSetFqName
+          a.fqName == providesFqName || a.fqName == intoSetFqName || a.fqName == elementsIntoSetFqName
       }
     }
 
@@ -44,6 +45,7 @@ class ContributesProvidersCodeGenerator : DaggerExtensionsModuleCodeGenerator<Co
       val mapKey = annotations.find(AnnotationReference::isMapKey)
       val qualifier = annotations.find(AnnotationReference::isQualifier)
       val daggerScope = annotations.find(AnnotationReference::isDaggerScope)
+      val elementsIntoSet = annotations.any { a -> a.fqName == elementsIntoSetFqName }
       
       val anvilScope = annotation.scope()
       val multibinding = mapKey != null || providerFunction.isAnnotatedWith(intoSetFqName)
@@ -55,6 +57,7 @@ class ContributesProvidersCodeGenerator : DaggerExtensionsModuleCodeGenerator<Co
           providerFunction = (providerFunction as FunctionReference.Psi).function,
           scope = daggerScope,
           multibinding = multibinding,
+          elementsIntoSet = elementsIntoSet,
           mapKey = mapKey,
           qualifier = qualifier,
         )
@@ -64,10 +67,11 @@ class ContributesProvidersCodeGenerator : DaggerExtensionsModuleCodeGenerator<Co
 
   override fun contributionsToDaggerBindings(contributions: Sequence<Provision>): DaggerBindings {
     val imports = sequence {
-      for ((clazz, providerFunction, scope, multibinding, mapKey, qualifier) in contributions) {
+      for ((clazz, providerFunction, scope, multibinding, elementsIntoSet, mapKey, qualifier) in contributions) {
         yield(providesFqName)
         if (multibinding && mapKey != null) yield(intoMapFqName)
         if (multibinding && mapKey == null) yield(intoSetFqName)
+        if (elementsIntoSet) yield(elementsIntoSetFqName)
         if (scope != null) yield(scope.fqName)
         if (mapKey != null) yield(mapKey.fqName)
         if (qualifier != null) yield(qualifier.fqName)
@@ -78,12 +82,13 @@ class ContributesProvidersCodeGenerator : DaggerExtensionsModuleCodeGenerator<Co
       }
     }
 
-    val functions = contributions.map { (clazz, providerFunction, scope, multibinding, mapKey, qualifier) ->
+    val functions = contributions.map { (clazz, providerFunction, scope, multibinding, elementsIntoSet, mapKey, qualifier) ->
       val annotations = sequence {
         yield("@Provides")
 
         if (multibinding && mapKey != null) yield("@IntoMap")
         if (multibinding && mapKey == null) yield("@IntoSet")
+        if (elementsIntoSet)                yield("@ElementsIntoSet")
         if (scope != null && !multibinding) yield(scope.annotation.text)
         if (mapKey != null)                 yield(mapKey.annotation.text)
         if (qualifier != null)              yield(qualifier.annotation.text)
