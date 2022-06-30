@@ -29,7 +29,7 @@ class ContributesProvidersCodeGenerator : DaggerExtensionsModuleCodeGenerator<Co
   override fun annotatedClassToContributions(annotatedClass: ClassReference): Sequence<AnvilScopedDaggerContribution<Provision>> {
     val annotation = annotatedClass.annotations.first { ann -> ann.fqName == contributesProvidersFqName }
 
-    val implementsProvider = annotatedClass.directSuperClassReferences().any { s -> s.fqName == providerFqName }
+    val implementsProvider = annotatedClass.directSuperTypeReferences().any { s -> s.asClassReference().fqName == providerFqName }
 
     val providerFunctions = annotatedClass.functions.filter { f ->
       f.visibility() == PUBLIC && f.parameters.isEmpty() &&
