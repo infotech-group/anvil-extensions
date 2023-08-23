@@ -4,7 +4,7 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.vanniktech:gradle-maven-publish-plugin:0.19.0'
+    classpath 'com.vanniktech:gradle-maven-publish-plugin:0.25.3'
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin"
   }
 }
@@ -12,10 +12,5 @@ buildscript {
 subprojects {
   repositories {
     mavenCentral()
-  }
-  afterEvaluate {
-    mavenPublish {
-      sonatypeHost = 'S01'
-    }
   }
 }
